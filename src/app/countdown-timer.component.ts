@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, Input } from '@angular/core';
 
 @Component({
   selector: 'app-countdown-timer',
@@ -8,11 +8,17 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
 
   intervalId = 0;
   message = '';
-  seconds = 11;
+  seconds: number;
+
+  //input properties
+  @Input() totalSeconds: number;
 
   clearTimer() { clearInterval(this.intervalId); }
 
-  ngOnInit()    { this.start(); }
+  ngOnInit()  { 
+    this.seconds = this.totalSeconds;
+    this.start(); 
+  }
   ngOnDestroy() { this.clearTimer(); }
 
   start() { this.countDown(); }
@@ -28,7 +34,7 @@ export class CountdownTimerComponent implements OnInit, OnDestroy {
       if (this.seconds === 0) {
         this.message = 'Blast off!';
       } else {
-        if (this.seconds < 0) { this.seconds = 10; } // reset
+        if (this.seconds < 0) { this.seconds = this.totalSeconds; } // reset
         this.message = `T-${this.seconds} seconds and counting`;
       }
     }, 1000);

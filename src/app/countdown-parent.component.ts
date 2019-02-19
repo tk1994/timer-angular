@@ -1,4 +1,4 @@
-import { AfterViewInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ViewChild, ViewChildren, QueryList } from '@angular/core';
 import { Component }                from '@angular/core';
 import { CountdownTimerComponent }  from './countdown-timer.component';
 
@@ -11,11 +11,11 @@ import { CountdownTimerComponent }  from './countdown-timer.component';
   <button (click)="timer.start()">Start</button>
   <button (click)="timer.stop()">Stop</button>
   <div class="seconds">{{timer.seconds}}</div>
-  <app-countdown-timer #timer></app-countdown-timer>
+  <app-countdown-timer [totalSeconds] = "totalSeconds" #timer></app-countdown-timer>
   `,
   styleUrls: ['../assets/demo.css']
 })
-export class CountdownLocalVarParentComponent { }
+export class CountdownLocalVarParentComponent { totalSeconds = 11; }
 
 //// View Child version
 @Component({
@@ -24,27 +24,34 @@ export class CountdownLocalVarParentComponent { }
   <h3>Countdown to Liftoff (via ViewChild)</h3>
   <button (click)="start()">Start</button>
   <button (click)="stop()">Stop</button>
-  <div class="seconds">{{ seconds() }}</div>
-  <app-countdown-timer></app-countdown-timer>
+  <div class="seconds">{{ seconds1() }}</div>
+  <div class="seconds">{{ seconds2() }}</div>
+  <app-countdown-timer [totalSeconds] = "totalSeconds1"></app-countdown-timer>
+  <app-countdown-timer [totalSeconds] = "totalSeconds2"></app-countdown-timer>
   `,
   styleUrls: ['../assets/demo.css']
 })
 export class CountdownViewChildParentComponent implements AfterViewInit {
 
-  @ViewChild(CountdownTimerComponent)
-  private timerComponent: CountdownTimerComponent;
+  @ViewChildren(CountdownTimerComponent)
+  private timerComponents: QueryList<CountdownTimerComponent>;
 
-  seconds() { return 0; }
+  totalSeconds1 = 11;
+  totalSeconds2 = 20;
+
+  seconds1() { return 0; }
+  seconds2() { return 0; }
 
   ngAfterViewInit() {
     // Redefine `seconds()` to get from the `CountdownTimerComponent.seconds` ...
     // but wait a tick first to avoid one-time devMode
     // unidirectional-data-flow-violation error
-    setTimeout(() => this.seconds = () => this.timerComponent.seconds, 0);
+    setTimeout(() => this.seconds1 = () => this.timerComponents.toArray()[0].seconds, 0);
+    setTimeout(() => this.seconds2 = () => this.timerComponents.toArray()[1].seconds, 0);
   }
 
-  start() { this.timerComponent.start(); }
-  stop() { this.timerComponent.stop(); }
+  start() { this.timerComponents.toArray()[0].start(); this.timerComponents.toArray()[1].start(); }
+  stop() { this.timerComponents.toArray()[0].stop(); this.timerComponents.toArray()[1].stop();}
 }
 
 
